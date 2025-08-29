@@ -1,0 +1,6 @@
+cd /home/andreza/code/andrezaumbelino/Project_lewagon
+source venv/bin/activate
+# Trabalha normal
+
+
+deactivate

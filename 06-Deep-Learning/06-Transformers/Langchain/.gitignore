@@ -1,0 +1,6 @@
+.streamlit/
+secrets.toml
+config.toml
+.streamlit/secrets.toml
+.streamlit/config.toml
+code/
