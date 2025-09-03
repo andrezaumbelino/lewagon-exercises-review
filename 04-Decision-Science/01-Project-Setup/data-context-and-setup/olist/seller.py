@@ -142,8 +142,34 @@ class Seller:
         'seller_id', 'share_of_five_stars', 'share_of_one_stars', 'review_score'
         """
 
-        pass  # YOUR CODE HERE
+        sellers_review = self.data['order_reviews'].merge(self.data['order_items'], how='inner', on='order_id')
+        sellers_review_order = sellers_review[['order_id','seller_id','review_score']]
+        sellers_review_mean = sellers_review[['seller_id','review_score']].groupby(['seller_id']).mean().reset_index()
+        
+        
+        review_5 = sellers_review_order[sellers_review_order['review_score'] == 5].groupby(['seller_id']).count().reset_index()
 
+        review_5 = review_5.rename(columns={'review_score': 'review_score_count_5'}).drop(columns='order_id')
+        
+        
+        review_1 = sellers_review_order[sellers_review_order['review_score'] == 1].groupby(['seller_id']).count().reset_index()
+
+        review_1 = review_1.rename(columns={'review_score': 'review_score_count_1'}).drop(columns='order_id')
+        
+        review_total = sellers_review_order.groupby(['seller_id']).count().reset_index()
+
+        review_total = review_total.rename(columns={'review_score': 'review_score_count_all'}).drop(columns='order_id')
+        
+        review_all = review_total.merge(review_5, how='left', on='seller_id').merge( review_1,how='left', on='seller_id').merge(sellers_review_mean, how='left', on='seller_id')
+        
+        review_all['share_of_five_stars'] = (review_all['review_score_count_5'] / review_all['review_score_count_all']).fillna(0)
+
+        review_all['share_of_one_stars'] = (review_all['review_score_count_1'] / review_all['review_score_count_all']).fillna(0)
+
+        review_all = review_all[['seller_id','share_of_five_stars','share_of_one_stars','review_score']]
+        
+        return review_all
+        
     def get_training_data(self):
         """
         Returns a DataFrame with:
